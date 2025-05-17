@@ -1,8 +1,11 @@
 [package]
 name = "utilz-rs"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 license = "MIT"
+repository = "https://github.com/Metehan120/utilz"
 description = "A lightweight extension trait collection for Rust primitives and types."
+keywords = ["utility", "traits", "option", "result", "sugar"]
+categories = ["development-tools", "rust-patterns"]
 
 [dependencies]

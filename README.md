@@ -27,7 +27,15 @@ This crate gives you clean, readable, expressive utility extensions without the 
 | `IdentityUtils`| Chainable `.tap()` for debug or logging |
 | `PanicUtils`   | Exit-friendly unwrapping: `.unwrap_or_exit()` |
 
----
+### Functions
+
+| Function               | Description                                      |
+| ---------------------- | ------------------------------------------------ |
+| `Log::log_*()`         | Log with a specific level (`info`, `warn`, etc.) |
+| `Log::get_logs()`      | Returns formatted log entries                    |
+| `Log::print_logs()`    | Prints all logs to stdout                        |
+| `Log::clear()`         | Clears all logs                                  |
+| `Log::set_up_logger()` | Sets the active log level filter                 |
 
 ## Installation
 
@@ -46,7 +54,7 @@ No dependencies. No macros. Just clean, simple, useful sugar.
 ### `OptionUtils`
 
 ```rust
-use rust_utils_plus::OptionUtils;
+use uitlz_rs::OptionUtils;
 
 let val = Some("hello");
 val.if_some(|s| println!("Got {}", s));
@@ -57,7 +65,7 @@ let fallback = val.or_default_with("default");
 ### `ResultUtils`
 
 ```rust
-use rust_utils_plus::ResultUtils;
+use uitlz_rs::ResultUtils;
 
 let res: Result<i32, &str> = Ok(42);
 res.if_ok(|v| println!("Success: {v}"));
@@ -67,7 +75,7 @@ res.if_err(|e| println!("Error: {e}"));
 ### `BoolUtils`
 
 ```rust
-use rust_utils_plus::BoolUtils;
+use uitlz_rs::BoolUtils;
 
 let mut flag = true;
 flag.toggle(); // becomes false
@@ -78,7 +86,7 @@ let val = flag.then_val("Yes"); // None
 ### `VecUtils`
 
 ```rust
-use rust_utils_plus::VecUtils;
+use uitlz_rs::VecUtils;
 
 let mut list = vec![];
 list.push_if(10, true);
@@ -88,7 +96,7 @@ list.push_if_with(false, || expensive_computation());
 ### `StrUtils`
 
 ```rust
-use rust_utils_plus::StrUtils;
+use uitlz_rs::StrUtils;
 
 let s = "hello world";
 assert!(s.contains_all(["hello", "world"]));
@@ -98,7 +106,7 @@ println!("{}", s.to_title_case()); // "Hello world"
 ### `DurationUtils`
 
 ```rust
-use rust_utils_plus::DurationUtils;
+use uitlz_rs::DurationUtils;
 
 let d = Duration::from_secs(3661);
 println!("{}", d.pretty()); // "1h 1m 1s"

@@ -10,6 +10,9 @@
 //!
 //! ## Highlights
 //!
+//! - **`Log`** – In-memory logger with filtering support
+//!   - `.log_info()`, `.log_warn()`, `.print_logs()`, `.set_up_logger()`, `.clear()`...
+//!
 //! - **`OptionUtils`** – Convenient extensions for `Option<T>`
 //!   - `.if_some()`, `.or_default_with()`
 //!
@@ -56,7 +59,7 @@
 //! ## Quick Example
 //!
 //! ```rust
-//! use rust_utils_plus::*;
+//! use utilz_rs::*;
 //!
 //! let value = Some("hi");
 //! value.if_some(|v| println!("Got: {v}"));
@@ -81,7 +84,149 @@
 //!
 //! _Use what you want, ignore the rest._
 
-use std::{any::type_name, collections::HashMap, hash::Hash, time::Duration};
+use std::{
+    any::type_name,
+    collections::HashMap,
+    hash::Hash,
+    sync::RwLock,
+    time::{Duration, SystemTime, UNIX_EPOCH},
+};
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LogLevel {
+    Error,
+    Debug,
+    Info,
+    Warn,
+}
+
+struct Logger {
+    message: String,
+    level: LogLevel,
+    time: SystemTime,
+}
+
+pub struct Log;
+
+static LOGS: RwLock<Vec<Logger>> = RwLock::new(Vec::new());
+static LOG_LEVEL: RwLock<LogLevel> = RwLock::new(LogLevel::Debug);
+
+fn get_level() -> LogLevel {
+    *LOG_LEVEL.read().unwrap()
+}
+
+fn level_priority(level: LogLevel) -> u8 {
+    match level {
+        LogLevel::Error => 1,
+        LogLevel::Warn => 2,
+        LogLevel::Info => 3,
+        LogLevel::Debug => 4,
+    }
+}
+
+impl Log {
+    pub fn set_up_logger(level: LogLevel) {
+        *LOG_LEVEL.write().unwrap() = level;
+    }
+
+    pub fn log_with_level(level: LogLevel, message: &str) {
+        if level_priority(level) <= level_priority(get_level()) {
+            let log = Logger {
+                message: message.to_string(),
+                level,
+                time: SystemTime::now(),
+            };
+
+            LOGS.write().unwrap().push(log);
+        }
+    }
+
+    pub fn log(message: &str) {
+        Self::log_with_level(get_level(), message);
+    }
+
+    pub fn log_info(message: &str) {
+        Self::log_with_level(LogLevel::Info, message);
+    }
+
+    pub fn log_debug(message: &str) {
+        Self::log_with_level(LogLevel::Debug, message);
+    }
+
+    pub fn log_error(message: &str) {
+        Self::log_with_level(LogLevel::Error, message);
+    }
+
+    pub fn log_warn(message: &str) {
+        Self::log_with_level(LogLevel::Warn, message);
+    }
+
+    pub fn get_logs() -> Vec<String> {
+        LOGS.read()
+            .unwrap()
+            .iter()
+            .map(|log| {
+                let since_unix = log
+                    .time
+                    .duration_since(UNIX_EPOCH)
+                    .unwrap_or(Duration::from_secs(0));
+                format!(
+                    "[{:?}] @ {}s → {}",
+                    log.level,
+                    since_unix.as_secs(),
+                    log.message
+                )
+            })
+            .collect()
+    }
+
+    pub fn print_logs() {
+        for log in Self::get_logs() {
+            println!("{}", log);
+        }
+    }
+
+    pub fn clear() {
+        LOGS.write().unwrap().clear();
+    }
+}
+
+pub trait Loggable {
+    fn log(self);
+    fn log_info(self);
+    fn log_error(self);
+    fn log_debug(self);
+}
+
+impl Loggable for &str {
+    fn log(self) {
+        Log::log(self);
+    }
+    fn log_info(self) {
+        Log::log_info(self);
+    }
+    fn log_error(self) {
+        Log::log_error(self);
+    }
+    fn log_debug(self) {
+        Log::log_debug(self);
+    }
+}
+
+impl Loggable for String {
+    fn log(self) {
+        self.as_str().log()
+    }
+    fn log_info(self) {
+        self.as_str().log_info()
+    }
+    fn log_error(self) {
+        self.as_str().log_error()
+    }
+    fn log_debug(self) {
+        self.as_str().log_debug()
+    }
+}
 
 /// Provides sugar methods for comparing values.
 pub trait EqUtils<T: PartialEq> {
