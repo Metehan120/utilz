@@ -34,7 +34,7 @@ This crate gives you clean, readable, expressive utility extensions without the 
 ```toml
 # Cargo.toml
 [dependencies]
-utilz = "0.1"
+utilz-rs = "0.1"
 ````
 
 No dependencies. No macros. Just clean, simple, useful sugar.
