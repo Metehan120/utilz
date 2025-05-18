@@ -2,40 +2,46 @@
 
 **A zero-dependency extension trait crate for Rust.**
 Sick of writing `if let Some(x)` all the time? Want `.tap()`, `.toggle()`, or `.if_ok()`?
-This crate gives you clean, readable, expressive utility extensions without the bloat.
+This crate gives you clean, expressive utility extensions without macros or bloat.
 
 ---
 
 ## Features
 
-> Lightweight extensions for common types like `Option`, `Result`, `Vec`, `bool`, `str`, `HashMap`, and more!
+> Lightweight extension traits for common Rust types like `Option`, `Result`, `Vec`, `bool`, `str`, `HashMap`, and more.
 
 | Trait           | Description |
 |----------------|-------------|
-| `OptionUtils`  | Ergonomic handling of `Option<T>`: `.if_some()`, `.or_default_with()` |
-| `ResultUtils`  | Convenient sugar: `.if_ok()`, `.if_err()`, `.unwrap_or_exit()` |
-| `BoolUtils`    | Fancy conditionals: `.not()`, `.toggle()`, `.if_true()` |
-| `VecUtils`     | Conditional pushes: `.push_if()`, `.push_if_with()` |
-| `MapUtils`     | Conditional insert and fallback get for `HashMap` |
-| `StrUtils`     | String search helpers + `.to_title_case()` |
-| `MemUtils`     | Type reflection: `.type_name()`, `.mem_size()` |
-| `DurationUtils`| Pretty formatting of `std::time::Duration` |
-| `ConvertUtils` | TryFrom sugar: `.to()`, `.to_result()` |
+| `OptionUtils`  | Ergonomic handling of `Option<T>` — `.if_some()`, `.or_default_with()` |
+| `ResultUtils`  | Convenient sugar for `Result` — `.if_ok()`, `.if_err()`, `.unwrap_or_exit()` |
+| `BoolUtils`    | Fancy conditionals — `.not()`, `.toggle()`, `.if_true()` |
+| `VecUtils`     | Conditional pushes — `.push_if()`, `.push_if_with()` |
+| `MapUtils`     | Insert/get helpers for `HashMap` |
+| `StrUtils`     | String search helpers — `.contains_all()`, `.to_title_case()` |
+| `MemUtils`     | Reflection-like helpers — `.type_name()`, `.mem_size()` |
+| `DurationUtils`| Pretty formatting for `std::time::Duration` |
+| `ConvertUtils` | Ergonomic `TryFrom` helpers — `.to()`, `.to_result()` |
 | `ClampUtils`   | Clamp integers to a range |
 | `NumberUtils`  | Simple `.is_even()` / `.is_odd()` |
-| `IteratorUtils`| `.find_map_or()` fallback on iterators |
-| `IdentityUtils`| Chainable `.tap()` for debug or logging |
-| `PanicUtils`   | Exit-friendly unwrapping: `.unwrap_or_exit()` |
+| `IteratorUtils`| Fallback logic with `.find_map_or()` |
+| `IdentityUtils`| Chainable `.tap()` for debugging or side effects |
+| `PanicUtils`   | Exit-friendly unwrapping — `.unwrap_or_exit()` |
 
-### Functions
+---
 
-| Function               | Description                                      |
-| ---------------------- | ------------------------------------------------ |
+## Logging Utilities
+
+If enabled, `Log` provides a simple in-memory logger with optional async support.
+
+| Function               | Description                              |
+|------------------------|------------------------------------------|
 | `Log::log_*()`         | Log with a specific level (`info`, `warn`, etc.) |
-| `Log::get_logs()`      | Returns formatted log entries                    |
-| `Log::print_logs()`    | Prints all logs to stdout                        |
-| `Log::clear()`         | Clears all logs                                  |
-| `Log::set_up_logger()` | Sets the active log level filter                 |
+| `Log::get_logs()`      | Returns formatted log entries            |
+| `Log::print_logs()`    | Prints all logs to stdout                |
+| `Log::clear()`         | Clears all logs                          |
+| `Log::set_up_logger()` | Sets the active log level filter         |
+
+---
 
 ## Installation
 

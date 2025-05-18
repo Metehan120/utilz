@@ -1,62 +1,63 @@
 //! # Utilz
 //!
-//! **Ergonomic, zero-dependency utility traits for Rust.**
+//! **Ergonomic utility traits for Rust with zero dependencies by default.**
 //!
-//! This crate provides a collection of extension traits for common Rust types
-//! like `Option`, `Result`, `Vec`, `bool`, `&str`, `HashMap`, and more — to make your
-//! code cleaner, shorter, and more expressive without relying on macros or external dependencies.
+//! `utilz` provides a curated set of extension traits for common Rust types like
+//! `Option`, `Result`, `Vec`, `bool`, `&str`, `HashMap`, and more — to help you
+//! write cleaner, shorter, and more expressive code.
 //!
 //! ---
 //!
 //! ## Highlights
 //!
-//! - **`Log`** – In-memory logger with filtering support
-//!   - `.log_info()`, `.log_warn()`, `.print_logs()`, `.set_up_logger()`, `.clear()`...
+//! - **`Log`** – Simple in-memory logger with optional async support
+//!   – `.log_info()`, `.log_warn()`, `.print_logs()`, `.set_up_logger()`, `.clear()`
 //!
-//! - **`OptionUtils`** – Convenient extensions for `Option<T>`
-//!   - `.if_some()`, `.or_default_with()`
+//! - **`OptionUtils`** – More ergonomic handling of `Option<T>`
+//!   – `.if_some()`, `.or_default_with()`
 //!
-//! - **`ResultUtils`** – Cleaner result handling
-//!   - `.if_ok()`, `.if_err()`, `.unwrap_or_exit()`
+//! - **`ResultUtils`** – Sugar methods for `Result<T, E>`
+//!   – `.if_ok()`, `.if_err()`, `.unwrap_or_exit()`
 //!
-//! - **`BoolUtils`** – Fancy conditionals for `bool`
-//!   - `.toggle()`, `.not()`, `.then_val()`, `.if_true()`, `.if_false()`
+//! - **`BoolUtils`** – Conditionals made fancy
+//!   – `.toggle()`, `.not()`, `.then_val()`, `.if_true()`, `.if_false()`
 //!
 //! - **`VecUtils`** – Push conditionally into vectors
-//!   - `.push_if()`, `.push_if_with()`
+//!   – `.push_if()`, `.push_if_with()`
 //!
-//! - **`StrUtils`** – String slice helpers
-//!   - `.contains_all()`, `.contains_any()`, `.to_title_case()`
+//! - **`StrUtils`** – Extensions for `&str`
+//!   – `.contains_all()`, `.contains_any()`, `.to_title_case()`
 //!
-//! - **`MapUtils`** – Extensions for `HashMap`
-//!   - `.insert_if()`, `.get_or()`
+//! - **`MapUtils`** – `HashMap` helpers
+//!   – `.insert_if()`, `.get_or()`
 //!
-//! - **`MemUtils`** – Reflection-like helpers
-//!   - `.type_name()`, `.mem_size()`, `.view()`
+//! - **`MemUtils`** – Reflection-like methods
+//!   – `.type_name()`, `.mem_size()`, `.view()`
 //!
-//! - **`IdentityUtils`** – Chainable `tap()` for debug or logging
+//! - **`IdentityUtils`** – Tap-style chaining
+//!   – `.tap()`
 //!
-//! - **`PanicUtils`** – Exit on `None` or `Err` with a message
-//!   - `.unwrap_or_exit()`
+//! - **`PanicUtils`** – Fatal exit helpers
+//!   – `.unwrap_or_exit()`
 //!
-//! - **`DurationUtils`** – Time formatting helpers
-//!   - `.pretty()` → `"1h 2m 3s"`
+//! - **`DurationUtils`** – Duration formatting
+//!   – `.pretty()` → `"1h 2m 3s"`
 //!
-//! - **`ConvertUtils`** – Ergonomic `TryFrom` helpers
-//!   - `.to()`, `.to_or()`, `.to_result()`
+//! - **`ConvertUtils`** – Easy type conversions with `TryFrom`
+//!   – `.to()`, `.to_or()`, `.to_result()`
 //!
-//! - **`ClampUtils`** – Limit a number to a range
-//!   - `.clamp_to(min, max)`
+//! - **`ClampUtils`** – Range limiting for numbers
+//!   – `.clamp_to(min, max)`
 //!
-//! - **`NumberUtils`** – Integer property checks
-//!   - `.is_even()`, `.is_odd()`
+//! - **`NumberUtils`** – Integer extensions
+//!   – `.is_even()`, `.is_odd()`
 //!
-//! - **`IteratorUtils`** – Iterator fallback logic
-//!   - `.find_map_or(f, fallback)`
+//! - **`IteratorUtils`** – Fallback logic for iterators
+//!   – `.find_map_or(f, fallback)`
 //!
 //! ---
 //!
-//! ## Quick Example
+//! ## ✨ Quick Example
 //!
 //! ```rust
 //! use utilz_rs::*;
@@ -71,26 +72,37 @@
 //! assert!(name.contains_all(["hello", "world"]));
 //!
 //! let duration = std::time::Duration::from_secs(3666);
-//! println!("{}", duration.pretty()); // "1h 1m 6s"
+//! println!("{}", duration.pretty()); // → "1h 1m 6s"
 //! ```
 //!
 //! ---
 //!
 //! ## Philosophy
 //!
-//! - 🔧 100% Rust standard library
-//! - 🚫 No dependencies
-//! - ✅ Only opt-in trait imports
+//! - ✅ 100% Rust standard library
+//! - 🔧 Zero dependencies by default
+//! - 🔌 Async logging via optional feature flag
+//! - 🙌 Opt-in trait imports: use only what you need
 //!
-//! _Use what you want, ignore the rest._
+//! _Use what you want, ignore the rest. No macros. No surprises._
+
+#[cfg(not(feature = "async"))]
+use std::sync::RwLock;
+use std::time::UNIX_EPOCH;
 
 use std::{
     any::type_name,
     collections::HashMap,
     hash::Hash,
-    sync::RwLock,
-    time::{Duration, SystemTime, UNIX_EPOCH},
+    time::{Duration, SystemTime},
 };
+
+#[cfg(feature = "async")]
+use async_trait::async_trait;
+#[cfg(feature = "async")]
+use once_cell::sync::Lazy;
+#[cfg(feature = "async")]
+use tokio::sync::RwLock;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LogLevel {
@@ -108,13 +120,27 @@ struct Logger {
 
 pub struct Log;
 
+#[cfg(feature = "async")]
+static LOGS: Lazy<RwLock<Vec<Logger>>> = Lazy::new(|| RwLock::new(Vec::new()));
+#[cfg(feature = "async")]
+static LOG_LEVEL: Lazy<RwLock<LogLevel>> = Lazy::new(|| RwLock::new(LogLevel::Info));
+
+#[cfg(not(feature = "async"))]
 static LOGS: RwLock<Vec<Logger>> = RwLock::new(Vec::new());
+#[cfg(not(feature = "async"))]
 static LOG_LEVEL: RwLock<LogLevel> = RwLock::new(LogLevel::Debug);
 
+#[cfg(not(feature = "async"))]
 fn get_level() -> LogLevel {
     *LOG_LEVEL.read().unwrap()
 }
 
+#[cfg(feature = "async")]
+async fn get_level() -> LogLevel {
+    *LOG_LEVEL.read().await
+}
+
+#[cfg(not(feature = "async"))]
 fn level_priority(level: LogLevel) -> u8 {
     match level {
         LogLevel::Error => 1,
@@ -124,6 +150,85 @@ fn level_priority(level: LogLevel) -> u8 {
     }
 }
 
+#[cfg(feature = "async")]
+async fn level_priority(level: LogLevel) -> u8 {
+    match level {
+        LogLevel::Error => 1,
+        LogLevel::Warn => 2,
+        LogLevel::Info => 3,
+        LogLevel::Debug => 4,
+    }
+}
+
+#[cfg(feature = "async")]
+impl Log {
+    pub async fn set_up_logger(level: LogLevel) {
+        *LOG_LEVEL.write().await = level;
+    }
+
+    pub async fn log_with_level(level: LogLevel, message: &str) {
+        if level_priority(level).await <= level_priority(get_level().await).await {
+            let log = Logger {
+                message: message.to_string(),
+                level,
+                time: SystemTime::now(),
+            };
+
+            LOGS.write().await.push(log);
+        }
+    }
+
+    pub async fn log(message: &str) {
+        Self::log_with_level(get_level().await, message).await;
+    }
+
+    pub async fn log_info(message: &str) {
+        Self::log_with_level(LogLevel::Info, message).await;
+    }
+
+    pub async fn log_debug(message: &str) {
+        Self::log_with_level(LogLevel::Debug, message).await;
+    }
+
+    pub async fn log_error(message: &str) {
+        Self::log_with_level(LogLevel::Error, message).await;
+    }
+
+    pub async fn log_warn(message: &str) {
+        Self::log_with_level(LogLevel::Warn, message).await;
+    }
+
+    pub async fn get_logs() -> Vec<String> {
+        LOGS.read()
+            .await
+            .iter()
+            .map(|log| {
+                let since_unix = log
+                    .time
+                    .duration_since(UNIX_EPOCH)
+                    .unwrap_or(Duration::from_secs(0));
+                format!(
+                    "[{:?}] @ {}s → {}",
+                    log.level,
+                    since_unix.as_secs(),
+                    log.message
+                )
+            })
+            .collect()
+    }
+
+    pub async fn print_logs() {
+        for log in Self::get_logs().await {
+            println!("{}", log);
+        }
+    }
+
+    pub async fn clear() {
+        LOGS.write().await.clear();
+    }
+}
+
+#[cfg(not(feature = "async"))]
 impl Log {
     pub fn set_up_logger(level: LogLevel) {
         *LOG_LEVEL.write().unwrap() = level;
@@ -191,6 +296,16 @@ impl Log {
     }
 }
 
+#[cfg(feature = "async")]
+#[async_trait(?Send)]
+pub trait Loggable: Sized + Send + 'static {
+    async fn log(&self);
+    async fn log_info(&self);
+    async fn log_error(&self);
+    async fn log_debug(&self);
+}
+
+#[cfg(not(feature = "async"))]
 pub trait Loggable {
     fn log(self);
     fn log_info(self);
@@ -198,6 +313,24 @@ pub trait Loggable {
     fn log_debug(self);
 }
 
+#[cfg(feature = "async")]
+#[async_trait(?Send)]
+impl Loggable for String {
+    async fn log(&self) {
+        Log::log(self).await
+    }
+    async fn log_info(&self) {
+        Log::log_info(self).await
+    }
+    async fn log_error(&self) {
+        Log::log_error(self).await
+    }
+    async fn log_debug(&self) {
+        Log::log_debug(self).await
+    }
+}
+
+#[cfg(not(feature = "async"))]
 impl Loggable for &str {
     fn log(self) {
         Log::log(self);
@@ -213,6 +346,7 @@ impl Loggable for &str {
     }
 }
 
+#[cfg(not(feature = "async"))]
 impl Loggable for String {
     fn log(self) {
         self.as_str().log()

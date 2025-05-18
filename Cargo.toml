@@ -8,4 +8,11 @@ description = "A lightweight extension trait collection for Rust primitives and 
 keywords = ["utility", "traits", "option", "result", "sugar"]
 categories = ["development-tools", "rust-patterns"]
 
+[features]
+default = []
+async = ["once_cell", "tokio", "async-trait"]
+
 [dependencies]
+once_cell = { version = "1", optional = true }
+tokio = { version = "1", features = ["sync"], optional = true }
+async-trait = { version = "0.1", optional = true }
