@@ -1,8 +1,8 @@
 [package]
 name = "utilz-rs"
-version = "0.1.1"
+version = "2.0.0"
 edition = "2024"
-license = "MIT"
+license-file = "LICENSE"
 repository = "https://github.com/Metehan120/utilz"
 description = "A lightweight extension trait collection for Rust primitives and types."
 keywords = ["utility", "traits", "option", "result", "sugar"]
@@ -10,6 +10,7 @@ categories = ["development-tools", "rust-patterns"]
 
 [features]
 default = []
+full = ["async"]
 async = ["once_cell", "tokio", "async-trait"]
 
 [dependencies]
