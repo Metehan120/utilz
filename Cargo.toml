@@ -1,6 +1,6 @@
 [package]
 name = "utilz-rs"
-version = "2.0.0"
+version = "0.2.0"
 edition = "2024"
 license-file = "LICENSE"
 repository = "https://github.com/Metehan120/utilz"

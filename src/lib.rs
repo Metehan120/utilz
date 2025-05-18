@@ -95,7 +95,7 @@ pub mod str_utils;
 
 pub mod prelude {
     pub use crate::bool_utils::*;
-    pub use crate::logger::*;
+    pub use crate::logger::Loggable;
     pub use crate::option_utils::*;
     pub use crate::str_utils::*;
     pub use crate::*;
