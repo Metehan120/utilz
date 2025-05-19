@@ -57,7 +57,7 @@
 //!
 //! ---
 //!
-//! ## ✨ Quick Example
+//! ## Quick Example
 //!
 //! ```rust
 //! use utilz_rs::*;
@@ -99,24 +99,6 @@ pub mod prelude {
     pub use crate::option_utils::*;
     pub use crate::str_utils::*;
     pub use crate::*;
-}
-
-/// Provides sugar methods for comparing values.
-pub trait EqUtils<T: PartialEq> {
-    /// Returns true if `self == other`.
-    fn eq_to(&self, other: &T) -> bool;
-
-    /// Returns true if `self != other`.
-    fn not_eq_to(&self, other: &T) -> bool;
-}
-
-impl<T: PartialEq> EqUtils<T> for T {
-    fn eq_to(&self, other: &T) -> bool {
-        self == other
-    }
-    fn not_eq_to(&self, other: &T) -> bool {
-        self != other
-    }
 }
 
 /// Reflection helpers: type name and memory size.
@@ -298,17 +280,43 @@ impl ClampUtils for i32 {
 }
 
 pub trait NumberUtils {
+    fn is_even(&self) -> bool;
+    fn is_odd(&self) -> bool;
+}
+
+impl<T> NumberUtils for T
+where
+    T: Copy + PartialEq + std::ops::Rem<Output = T> + From<u8>,
+{
+    fn is_even(&self) -> bool {
+        *self % T::from(2u8) == T::from(0u8)
+    }
+    fn is_odd(&self) -> bool {
+        *self % T::from(2u8) != T::from(0u8)
+    }
+}
+
+pub trait UNumberUtils {
     #[must_use]
     fn is_even(&self) -> bool;
     #[must_use]
     fn is_odd(&self) -> bool;
 }
-
-impl NumberUtils for i32 {
+impl UNumberUtils for u32 {
     fn is_even(&self) -> bool {
         self % 2 == 0
     }
     fn is_odd(&self) -> bool {
         self % 2 != 0
+    }
+}
+
+pub trait BitwiseUtils<Rhs = Self> {
+    fn xor(self, rhs: Rhs) -> Self;
+}
+
+impl BitwiseUtils for u32 {
+    fn xor(self, rhs: Self) -> Self {
+        self ^ rhs
     }
 }

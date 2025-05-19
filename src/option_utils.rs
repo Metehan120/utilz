@@ -5,9 +5,14 @@ pub trait OptionUtils<T> {
 
     /// Executes a closure if the `Option` is `Some`.
     ///
-    /// Returns the same `Option` back.
+    /// Returns the same `Option` back. (If None returns back None)
     #[must_use]
     fn if_some<F: FnOnce(&T)>(self, f: F) -> Option<T>;
+
+    /// Executes a closure if the `Option` is `None`.
+    ///
+    /// Returns nothing back.
+    fn if_none<F: FnOnce()>(self, f: F);
 }
 
 impl<T> OptionUtils<T> for Option<T> {
@@ -20,5 +25,11 @@ impl<T> OptionUtils<T> for Option<T> {
             f(val);
         }
         self
+    }
+
+    fn if_none<F: FnOnce()>(self, f: F) {
+        if self.is_none() {
+            f()
+        }
     }
 }
